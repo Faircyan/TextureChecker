@@ -1,3 +1,4 @@
+#if UNITY_EDITOR
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -5,20 +6,25 @@ using System.Security.Cryptography;
 using UnityEditor;
 using UnityEngine;
 
-public class DuplicateTextureDetector : EditorWindow
+public class TextureChecker : EditorWindow
 {
     private Dictionary<string, List<Texture2D>> _textureHashes;
     private const int TextureSize = 100;
     private const int InspectorSize = 300;
+    private static readonly Vector2 DefaultWindowSize = new Vector2(800, 600);
+
     private Vector2 _scrollPosition;
     private string _activeHash;
 
-    [SerializeField] private List<string> _ignorePaths = new() { "Packages/" };
+    private readonly List<string> _ignorePaths = new() { "Packages/" };
 
-    [MenuItem("Tools/Find Duplicate Texture")]
+    [MenuItem("Tools/Texture Checker")]
     public static void ShowWindow()
     {
-        GetWindow<DuplicateTextureDetector>("Duplicate Texture Detector");
+        var window = GetWindow<TextureChecker>();
+        window.titleContent = new GUIContent("Texture Checker");
+        window.minSize = DefaultWindowSize;
+        window.Show();
     }
 
     private void OnEnable()
@@ -30,7 +36,6 @@ public class DuplicateTextureDetector : EditorWindow
     {
         if (GUILayout.Button("Find Duplicate Textures")) FindDuplicateTextures();
         GUILayout.Label($"Total Duplicate Groups Found: {_textureHashes.Count}");
-
         GUILayout.BeginHorizontal();
         DrawTextures();
 
@@ -60,7 +65,6 @@ public class DuplicateTextureDetector : EditorWindow
                 AssetDatabase.DeleteAsset(path);
                 FindDuplicateTextures();
             }
-
             GUILayout.EndHorizontal();
         }
 
@@ -91,8 +95,9 @@ public class DuplicateTextureDetector : EditorWindow
 
         var style = new GUIStyle(GUI.skin.button);
         style.normal.background = texture;
-
-        if (GUILayout.Button("", style, GUILayout.Width(TextureSize), GUILayout.Height(TextureSize)))
+        style.imagePosition = ImagePosition.ImageOnly;
+        
+        if (GUILayout.Button(new GUIContent(String.Empty, texture), GUILayout.Width(TextureSize), GUILayout.Height(TextureSize)))
         {
             _activeHash = GetTextureHash(texture);
         }
@@ -135,3 +140,4 @@ public class DuplicateTextureDetector : EditorWindow
         return Convert.ToBase64String(MD5.Create().ComputeHash(pixels));
     }
 }
+#endif
