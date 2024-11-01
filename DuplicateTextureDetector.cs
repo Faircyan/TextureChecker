@@ -13,7 +13,7 @@ public class DuplicateTextureDetector : EditorWindow
     private Vector2 _scrollPosition;
     private string _activeHash;
 
-    private readonly List<string> _ignorePaths = new() { "Packages/" };
+    [SerializeField] private List<string> _ignorePaths = new() { "Packages/" };
 
     [MenuItem("Tools/Find Duplicate Texture")]
     public static void ShowWindow()
@@ -29,6 +29,7 @@ public class DuplicateTextureDetector : EditorWindow
     private void OnGUI()
     {
         if (GUILayout.Button("Find Duplicate Textures")) FindDuplicateTextures();
+        GUILayout.Label($"Total Duplicate Groups Found: {_textureHashes.Count}");
 
         GUILayout.BeginHorizontal();
         DrawTextures();
